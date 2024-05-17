@@ -34,7 +34,11 @@ resource "aws_iam_role_policy" "glue_crawler_s3_policy" {
                     "s3:PutObject"
                 ],
                 "Resource": [
-                    "arn:aws:s3:::${aws_s3_bucket.data_bucket.id}*"
+                    "arn:aws:s3:::${aws_s3_bucket.data_bucket.id}",
+                    "arn:aws:s3:::${aws_s3_bucket.data_bucket.id}/*",
+                    "arn:aws:s3:::${aws_s3_bucket.cleansed_bucket.id}",
+                    "arn:aws:s3:::${aws_s3_bucket.cleansed_bucket.id}/*",
+                    # "arn:aws:s3:::${aws_s3_bucket.assets_bucket.id}",
                 ]
             }
         ]
@@ -65,7 +69,12 @@ resource "aws_iam_role_policy_attachment" "glue_crawler_lambda_policy_attachment
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
-resource "aws_iam_role_policy" "s3_access_attachment" {
+resource "aws_iam_role_policy_attachment" "lambda_basic_execution_attachment" {
+    role       = aws_iam_role.my_lambda_role.name
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy" "s3_access_attachment" { 
   role = aws_iam_role.my_lambda_role.name
   policy = jsonencode({
     "Version" : "2012-10-17",
@@ -79,8 +88,10 @@ resource "aws_iam_role_policy" "s3_access_attachment" {
           "s3:*"
         ],
         "Resource" : [
-          "arn:aws:s3:::${aws_s3_bucket.data_bucket.id}*",
-          "arn:aws:s3:::${aws_s3_bucket.cleansed_bucket.id}*"
+          "arn:aws:s3:::${aws_s3_bucket.data_bucket.id}",
+          "arn:aws:s3:::${aws_s3_bucket.data_bucket.id}/*",
+          "arn:aws:s3:::${aws_s3_bucket.cleansed_bucket.id}",
+          "arn:aws:s3:::${aws_s3_bucket.cleansed_bucket.id}/*"
         ]
       }
     ]
